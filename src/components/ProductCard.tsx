@@ -22,6 +22,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             src={product.image}
             alt={product.name}
             loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&auto=format&fit=crop&q=80";
+            }}
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
           />
           <div className="absolute top-3 left-3 flex gap-2">

@@ -41,18 +41,9 @@ import p44 from "@/assets/p44.jpg";
 import p45 from "@/assets/p45.jpg";
 import a2 from "@/assets/a2.jpg";
 import a3 from "@/assets/a3.jpg";
-import n1Asset from "@/assets/n1.jpg.asset.json";
-import n2Asset from "@/assets/n2.jpg.asset.json";
-import n3Asset from "@/assets/n3.jpg.asset.json";
-import n4Asset from "@/assets/n4.jpg.asset.json";
-import n5Asset from "@/assets/n5.jpg.asset.json";
-import n6Asset from "@/assets/n6.jpg.asset.json";
-import s1Asset from "@/assets/s1.jpg.asset.json";
-import s2Asset from "@/assets/s2.jpg.asset.json";
-import s3Asset from "@/assets/s3.jpg.asset.json";
-import s4Asset from "@/assets/s4.jpg.asset.json";
-import s5Asset from "@/assets/s5.jpg.asset.json";
-import s6Asset from "@/assets/s6.jpg.asset.json";
+import a4 from "@/assets/a4.jpg";
+import catAccessories from "@/assets/cat-accessories.jpg";
+import catFootwear from "@/assets/cat-footwear.jpg";
 
 export type Product = {
   slug: string;
@@ -745,7 +736,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Cream", hex: "#FFF8F0" }],
     sizes: ["6-12 Months", "12-18 Months", "18-24 Months"],
-    image: n1Asset.url,
+    image: p12,
     isNew: true,
     bestSeller: true,
     fabric: "3D floral lace with tulle overlay",
@@ -761,7 +752,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Mocha", hex: "#A8877A" }],
     sizes: ["3-6 Months", "6-9 Months", "9-12 Months"],
-    image: n2Asset.url,
+    image: p18,
     isNew: true,
     fabric: "Cotton with floral embroidery",
     care: "Machine wash cold · Iron low",
@@ -776,7 +767,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Cherry Red", hex: "#A81E2B" }],
     sizes: ["6-12 Months", "12-18 Months", "18-24 Months"],
-    image: n3Asset.url,
+    image: p20,
     isNew: true,
     bestSeller: true,
     fabric: "Soft baby corduroy",
@@ -792,7 +783,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Cream Floral", hex: "#FFF0E8" }, { name: "Oat", hex: "#E3D5C0" }],
     sizes: ["3-6 Months", "6-9 Months", "9-12 Months"],
-    image: n4Asset.url,
+    image: p22,
     isNew: true,
     fabric: "Cotton with waffle-knit dungaree",
     care: "Machine wash cold",
@@ -807,7 +798,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Mint", hex: "#BFE0DA" }, { name: "Ivory", hex: "#FFF8F0" }],
     sizes: ["6-9 Months", "9-12 Months", "12-18 Months"],
-    image: n5Asset.url,
+    image: p24,
     isNew: true,
     fabric: "Embroidered cotton",
     care: "Hand wash cold",
@@ -822,7 +813,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Black Gingham", hex: "#2B2B2B" }, { name: "Taupe", hex: "#A08D80" }],
     sizes: ["6-12 Months", "12-18 Months", "18-24 Months"],
-    image: n6Asset.url,
+    image: p26,
     isNew: true,
     fabric: "Cotton flannel with waffle-knit",
     care: "Machine wash cold",
@@ -837,7 +828,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Cream", hex: "#F5E3C6" }],
     sizes: ["0-12 Months", "1-2 Years", "2-3 Years"],
-    image: s1Asset.url,
+    image: a4,
     isNew: true,
     fabric: "Combed cotton pointelle knit",
     care: "Gentle machine wash cold · Dry flat",
@@ -852,7 +843,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Blush Pink", hex: "#F6D3D0" }, { name: "White", hex: "#FFFFFF" }],
     sizes: ["0-12 Months", "1-2 Years", "2-3 Years"],
-    image: s2Asset.url,
+    image: catFootwear,
     isNew: true,
     fabric: "Breathable cotton pointelle knit",
     care: "Gentle machine wash cold · Dry flat",
@@ -867,7 +858,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "White", hex: "#FFFFFF" }],
     sizes: ["6-12 Months", "1-2 Years", "2-3 Years"],
-    image: s3Asset.url,
+    image: catFootwear,
     isNew: true,
     bestSeller: true,
     fabric: "Stretch fishnet mesh",
@@ -883,7 +874,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Black", hex: "#1C1C1C" }, { name: "Ivory", hex: "#FFF8F0" }, { name: "Camel", hex: "#D9A96C" }],
     sizes: ["0-12 Months", "1-2 Years", "2-3 Years"],
-    image: s4Asset.url,
+    image: a4,
     isNew: true,
     fabric: "Ribbed cotton blend",
     care: "Gentle machine wash cold · Dry flat",
@@ -898,7 +889,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "Ivory", hex: "#FFF6E8" }, { name: "Mocha", hex: "#8B6547" }],
     sizes: ["One Size"],
-    image: s5Asset.url,
+    image: a3,
     isNew: true,
     fabric: "Faux fur with resin strawberry charm",
     care: "Spot clean only",
@@ -913,7 +904,7 @@ export const PRODUCTS: Product[] = [
     gender: "Girls",
     colors: [{ name: "White", hex: "#FFFFFF" }, { name: "Black", hex: "#1C1C1C" }],
     sizes: ["One Size"],
-    image: s6Asset.url,
+    image: catAccessories,
     isNew: true,
     fabric: "Floral embroidered lace on soft nylon band",
     care: "Hand wash cold · Dry flat",
