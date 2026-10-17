@@ -1,17 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Heart, Leaf, ShieldCheck, Star, Quote } from "lucide-react";
+import hero from "@/assets/hero.jpg";
+import boys from "@/assets/cat-boys.jpg";
+import girls from "@/assets/cat-girls.jpg";
+import accessories from "@/assets/cat-accessories.jpg";
+import footwear from "@/assets/cat-footwear.jpg";
+import insta1 from "@/assets/insta1.jpg";
+import insta2 from "@/assets/insta2.jpg";
+import insta3 from "@/assets/insta3.jpg";
+import insta4 from "@/assets/insta4.jpg";
 
-const hero = "/assets/hero.jpg";
-const boys = "/assets/cat-boys.jpg";
-const girls = "/assets/cat-girls.jpg";
-const baby = "/assets/cat-baby.jpg";
-const accessories = "/assets/cat-accessories.jpg";
-const footwear = "/assets/cat-footwear.jpg";
-const insta1 = "/assets/insta1.jpg";
-const insta2 = "/assets/insta2.jpg";
-const insta3 = "/assets/insta3.jpg";
-const insta4 = "/assets/insta4.jpg";
 import { fetchStorefrontProducts } from "@/lib/api/products";
 import { ProductCard } from "@/components/ProductCard";
 import { Blobs } from "@/components/Blobs";
