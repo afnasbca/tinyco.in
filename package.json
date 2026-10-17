@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "migrate:images": "node --experimental-strip-types scripts/migrate-product-images.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -43,8 +44,9 @@
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-router": "^1.170.29",
-    "@tanstack/react-start": "^1.168.46",
+    "@tanstack/react-start": "^1.169.3",
     "@tanstack/router-plugin": "^1.168.32",
+    "@tanstack/start-server-core": "^1.169.44",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
