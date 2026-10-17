@@ -64,6 +64,8 @@ export type Product = {
   colors: { name: string; hex: string }[];
   sizes: string[];
   image: string;
+  /** Additional gallery images supplied by the products table. */
+  images?: string[];
   isNew?: boolean;
   bestSeller?: boolean;
   soldOut?: boolean;

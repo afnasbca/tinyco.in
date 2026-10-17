@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { PRODUCTS as STATIC_PRODUCTS } from "@/lib/products";
+import type { Product } from "@/lib/products";
+import type { Database, Json } from "@/integrations/supabase/types";
 
 export type AdminProduct = {
   id: string;
@@ -33,6 +35,88 @@ export type AdminProductInput = {
   is_new: boolean;
   is_sold_out: boolean;
 };
+
+const DEFAULT_FABRIC = "100% Cotton";
+const DEFAULT_CARE = "Machine wash cold · Tumble dry low · Do not bleach";
+
+function stringArray(value: Json | null): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+function colorArray(value: Json | null): Product["colors"] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (item === null || Array.isArray(item) || typeof item !== "object") return [];
+    const name = item.name;
+    const hex = item.hex;
+    return typeof name === "string" && typeof hex === "string" ? [{ name, hex }] : [];
+  });
+}
+
+function mapDbRowToProduct(
+  row: Database["public"]["Tables"]["products"]["Row"],
+): Product {
+  const fallback = STATIC_PRODUCTS.find((product) => product.slug === row.slug);
+  const sizes = stringArray(row.sizes);
+  const dbImages = stringArray(row.images);
+  const images = dbImages.length > 0 ? dbImages : fallback ? [fallback.image] : [];
+  const colors = colorArray(row.colors);
+  const rawCategory = row.category.toLowerCase();
+  const category: Product["category"] =
+    rawCategory === "girls" || rawCategory === "accessories" || rawCategory === "footwear" || rawCategory === "boys"
+      ? rawCategory
+      : fallback?.category ?? "boys";
+  const rawGender = row.gender;
+  const gender: Product["gender"] =
+    rawGender === "Boys" || rawGender === "Girls" || rawGender === "Unisex"
+      ? rawGender
+      : fallback?.gender ?? (category === "girls" ? "Girls" : category === "boys" ? "Boys" : "Unisex");
+
+  return {
+    slug: row.slug,
+    name: row.name,
+    price: Number(row.price),
+    ageRange:
+      fallback?.ageRange ??
+      (sizes.length > 1 ? `${sizes[0]} – ${sizes[sizes.length - 1]}` : sizes[0] ?? "0-3 Years"),
+    category,
+    gender,
+    colors: colors.length > 0 ? colors : fallback?.colors ?? [],
+    sizes: sizes.length > 0 ? sizes : fallback?.sizes ?? ["Standard"],
+    image: images[0] ?? "",
+    images,
+    isNew: row.is_new ?? fallback?.isNew ?? false,
+    bestSeller: fallback?.bestSeller ?? false,
+    soldOut: row.is_sold_out ?? fallback?.soldOut ?? false,
+    fabric: fallback?.fabric ?? DEFAULT_FABRIC,
+    care: fallback?.care ?? DEFAULT_CARE,
+    description: row.description ?? fallback?.description ?? "",
+  };
+}
+
+function mapDbRowToAdminProduct(
+  row: Database["public"]["Tables"]["products"]["Row"],
+): AdminProduct {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    description: row.description ?? "",
+    price: Number(row.price),
+    original_price: row.original_price,
+    category: row.category,
+    gender: mapDbRowToProduct(row).gender,
+    images: stringArray(row.images),
+    sizes: stringArray(row.sizes),
+    colors: colorArray(row.colors),
+    is_new: row.is_new ?? false,
+    is_sold_out: row.is_sold_out ?? false,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
 
 /**
  * Checks if the current authenticated user is an authorized admin.
@@ -70,25 +154,7 @@ export async function fetchAdminProducts(): Promise<AdminProduct[]> {
     throw new Error(error.message);
   }
 
-  return (data || []).map((row) => ({
-    id: row.id,
-    slug: row.slug,
-    name: row.name,
-    description: row.description || "",
-    price: Number(row.price),
-    original_price: row.original_price ? Number(row.original_price) : null,
-    category: row.category,
-    gender: (row as any).gender || "Unisex",
-    images: Array.isArray(row.images) ? (row.images as string[]) : [],
-    sizes: Array.isArray(row.sizes) ? (row.sizes as string[]) : [],
-    colors: Array.isArray(row.colors)
-      ? (row.colors as { name: string; hex: string }[])
-      : [],
-    is_new: !!row.is_new,
-    is_sold_out: !!row.is_sold_out,
-    created_at: row.created_at,
-    updated_at: row.updated_at,
-  }));
+  return (data || []).map(mapDbRowToAdminProduct);
 }
 
 /**
@@ -103,8 +169,9 @@ export async function createAdminProduct(input: AdminProductInput): Promise<Admi
         name: input.name,
         description: input.description,
         price: input.price,
-        original_price: input.original_price || null,
+        original_price: input.original_price ?? null,
         category: input.category,
+        gender: input.gender,
         images: input.images,
         sizes: input.sizes,
         colors: input.colors,
@@ -120,25 +187,7 @@ export async function createAdminProduct(input: AdminProductInput): Promise<Admi
     throw new Error(error.message);
   }
 
-  return {
-    id: data.id,
-    slug: data.slug,
-    name: data.name,
-    description: data.description || "",
-    price: Number(data.price),
-    original_price: data.original_price ? Number(data.original_price) : null,
-    category: data.category,
-    gender: input.gender || "Unisex",
-    images: Array.isArray(data.images) ? (data.images as string[]) : [],
-    sizes: Array.isArray(data.sizes) ? (data.sizes as string[]) : [],
-    colors: Array.isArray(data.colors)
-      ? (data.colors as { name: string; hex: string }[])
-      : [],
-    is_new: !!data.is_new,
-    is_sold_out: !!data.is_sold_out,
-    created_at: data.created_at,
-    updated_at: data.updated_at,
-  };
+  return mapDbRowToAdminProduct(data);
 }
 
 /**
@@ -148,13 +197,16 @@ export async function updateAdminProduct(
   id: string,
   input: Partial<AdminProductInput>
 ): Promise<AdminProduct> {
-  const payload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  const payload: Database["public"]["Tables"]["products"]["Update"] = {
+    updated_at: new Date().toISOString(),
+  };
   if (input.name !== undefined) payload.name = input.name;
   if (input.slug !== undefined) payload.slug = input.slug;
   if (input.description !== undefined) payload.description = input.description;
   if (input.price !== undefined) payload.price = input.price;
   if (input.original_price !== undefined) payload.original_price = input.original_price;
   if (input.category !== undefined) payload.category = input.category;
+  if (input.gender !== undefined) payload.gender = input.gender;
   if (input.images !== undefined) payload.images = input.images;
   if (input.sizes !== undefined) payload.sizes = input.sizes;
   if (input.colors !== undefined) payload.colors = input.colors;
@@ -173,25 +225,7 @@ export async function updateAdminProduct(
     throw new Error(error.message);
   }
 
-  return {
-    id: data.id,
-    slug: data.slug,
-    name: data.name,
-    description: data.description || "",
-    price: Number(data.price),
-    original_price: data.original_price ? Number(data.original_price) : null,
-    category: data.category,
-    gender: input.gender || "Unisex",
-    images: Array.isArray(data.images) ? (data.images as string[]) : [],
-    sizes: Array.isArray(data.sizes) ? (data.sizes as string[]) : [],
-    colors: Array.isArray(data.colors)
-      ? (data.colors as { name: string; hex: string }[])
-      : [],
-    is_new: !!data.is_new,
-    is_sold_out: !!data.is_sold_out,
-    created_at: data.created_at,
-    updated_at: data.updated_at,
-  };
+  return mapDbRowToAdminProduct(data);
 }
 
 /**
@@ -232,6 +266,7 @@ export async function uploadProductImage(file: File): Promise<string> {
 /**
  * Optional helper for owner/client to seed initial catalog from products.ts into empty Supabase table.
  */
+
 export async function seedProductsFromStaticCatalog(): Promise<number> {
   const itemsToInsert = STATIC_PRODUCTS.map((p) => ({
     slug: p.slug,
@@ -239,6 +274,7 @@ export async function seedProductsFromStaticCatalog(): Promise<number> {
     description: p.description,
     price: p.price,
     category: p.category,
+    gender: p.gender,
     images: [p.image],
     sizes: p.sizes,
     colors: p.colors,
@@ -246,10 +282,46 @@ export async function seedProductsFromStaticCatalog(): Promise<number> {
     is_sold_out: !!p.soldOut,
   }));
 
-  const { data, error } = await supabase.from("products").insert(itemsToInsert).select("id");
+  const { data, error } = await supabase
+    .from("products")
+    .insert(itemsToInsert)
+    .select("id");
+
   if (error) {
     console.error("Error seeding products:", error);
     throw new Error(error.message);
   }
+
   return data ? data.length : 0;
+}
+
+/**
+ * Fetches products for the public storefront from Supabase.
+ */
+export async function fetchStorefrontProducts(): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Unable to fetch storefront products from Supabase: ${error.message}`);
+  }
+
+  return data.map(mapDbRowToProduct);
+}
+
+/** Fetches one storefront product; query failures are surfaced to the route. */
+export async function fetchStorefrontProductBySlug(slug: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Unable to fetch storefront product "${slug}" from Supabase: ${error.message}`);
+  }
+
+  return data ? mapDbRowToProduct(data) : null;
 }

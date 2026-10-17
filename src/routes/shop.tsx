@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
-import { PRODUCTS } from "@/lib/products";
+import { fetchStorefrontProducts } from "@/lib/api/products";
 import { ProductCard } from "@/components/ProductCard";
 
 type CategoryKey = "boys" | "girls" | "accessories" | "footwear";
@@ -35,6 +35,10 @@ export const Route = createFileRoute("/shop")({
       ],
     };
   },
+  loader: async () => {
+    const products = await fetchStorefrontProducts();
+    return { products };
+  },
   component: ShopPage,
 });
 
@@ -66,6 +70,7 @@ type Filters = {
 };
 
 function ShopPage() {
+  const { products } = Route.useLoaderData();
   const { category } = Route.useSearch();
   const [filters, setFilters] = useState<Filters>({
     cats: new Set<string>(category ? [category] : []),
@@ -85,7 +90,7 @@ function ShopPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const filtered = useMemo(() => {
-    let list = PRODUCTS.filter((p) => {
+    let list = products.filter((p) => {
       if (filters.cats.size && !filters.cats.has(p.category)) return false;
       if (filters.genders.size && !filters.genders.has(p.gender)) return false;
       if (filters.colors.size && !p.colors.some((c) => filters.colors.has(c.hex))) return false;
@@ -95,7 +100,7 @@ function ShopPage() {
     if (sort === "low") list = [...list].sort((a, b) => a.price - b.price);
     if (sort === "high") list = [...list].sort((a, b) => b.price - a.price);
     return list;
-  }, [filters, sort]);
+  }, [products, filters, sort]);
 
   const toggle = (key: keyof Filters, value: string) => {
     setFilters((f) => {

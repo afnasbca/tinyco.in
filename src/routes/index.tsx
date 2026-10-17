@@ -2,17 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Heart, Leaf, ShieldCheck, Star, Quote } from "lucide-react";
 
-import hero from "@/assets/hero.jpg";
-import boys from "@/assets/cat-boys.jpg";
-import girls from "@/assets/cat-girls.jpg";
-import baby from "@/assets/cat-baby.jpg";
-import accessories from "@/assets/cat-accessories.jpg";
-import footwear from "@/assets/cat-footwear.jpg";
-import insta1 from "@/assets/insta1.jpg";
-import insta2 from "@/assets/insta2.jpg";
-import insta3 from "@/assets/insta3.jpg";
-import insta4 from "@/assets/insta4.jpg";
-import { PRODUCTS } from "@/lib/products";
+const hero = "/assets/hero.jpg";
+const boys = "/assets/cat-boys.jpg";
+const girls = "/assets/cat-girls.jpg";
+const baby = "/assets/cat-baby.jpg";
+const accessories = "/assets/cat-accessories.jpg";
+const footwear = "/assets/cat-footwear.jpg";
+const insta1 = "/assets/insta1.jpg";
+const insta2 = "/assets/insta2.jpg";
+const insta3 = "/assets/insta3.jpg";
+const insta4 = "/assets/insta4.jpg";
+import { fetchStorefrontProducts } from "@/lib/api/products";
 import { ProductCard } from "@/components/ProductCard";
 import { Blobs } from "@/components/Blobs";
 import { SITE } from "@/lib/site-config";
@@ -26,6 +26,10 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Premium, playful kids fashion designed for every tiny adventure." },
     ],
   }),
+  loader: async () => {
+    const products = await fetchStorefrontProducts();
+    return { products };
+  },
   component: Index,
 });
 
@@ -50,8 +54,12 @@ const TESTIMONIALS = [
 ];
 
 function Index() {
-  const newArrivals = PRODUCTS.filter((p) => p.isNew).slice(0, 4);
-  const bestSellers = PRODUCTS.filter((p) => p.bestSeller);
+  const { products } = Route.useLoaderData();
+  const newArrivals = products.filter((p) => p.isNew).slice(0, 4);
+  const bestSellers =
+    products.filter((p) => p.bestSeller).length > 0
+      ? products.filter((p) => p.bestSeller)
+      : products.slice(0, 8);
 
   return (
     <div>

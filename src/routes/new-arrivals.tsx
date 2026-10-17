@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PRODUCTS } from "@/lib/products";
+import { fetchStorefrontProducts } from "@/lib/api/products";
 import { ProductCard } from "@/components/ProductCard";
 import { Blobs } from "@/components/Blobs";
 
@@ -12,11 +12,16 @@ export const Route = createFileRoute("/new-arrivals")({
       { property: "og:description", content: "The latest drops from Tiny.co." },
     ],
   }),
+  loader: async () => {
+    const products = await fetchStorefrontProducts();
+    return { products };
+  },
   component: NewArrivals,
 });
 
 function NewArrivals() {
-  const items = PRODUCTS.filter((p) => p.isNew);
+  const { products } = Route.useLoaderData();
+  const items = products.filter((p) => p.isNew);
   return (
     <div className="mx-auto max-w-7xl px-5 md:px-8 pt-10 pb-20">
       <section className="relative overflow-hidden rounded-[2.5rem] bg-white border border-border p-10 md:p-16 mb-14">

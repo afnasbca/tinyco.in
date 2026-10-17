@@ -41,6 +41,7 @@ export type Database = {
           price: number
           original_price: number | null
           category: string
+          gender: string | null
           images: Json | null
           sizes: Json | null
           colors: Json | null
@@ -57,6 +58,7 @@ export type Database = {
           price: number
           original_price?: number | null
           category: string
+          gender?: string | null
           images?: Json | null
           sizes?: Json | null
           colors?: Json | null
@@ -73,6 +75,7 @@ export type Database = {
           price?: number
           original_price?: number | null
           category?: string
+          gender?: string | null
           images?: Json | null
           sizes?: Json | null
           colors?: Json | null

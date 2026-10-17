@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Minus, Plus, ChevronLeft } from "lucide-react";
-import { PRODUCTS, getProduct, type Product } from "@/lib/products";
+import type { Product } from "@/lib/products";
+import { fetchStorefrontProducts, fetchStorefrontProductBySlug } from "@/lib/api/products";
 import { ProductCard } from "@/components/ProductCard";
 import { whatsappLink, buildOrderMessage } from "@/lib/site-config";
 import { WhatsAppIcon } from "@/components/WhatsAppButton";
@@ -9,10 +10,13 @@ import { ProductReviews } from "@/components/ProductReviews";
 
 
 export const Route = createFileRoute("/product/$slug")({
-  loader: ({ params }) => {
-    const product = getProduct(params.slug);
+  loader: async ({ params }) => {
+    const [product, allProducts] = await Promise.all([
+      fetchStorefrontProductBySlug(params.slug),
+      fetchStorefrontProducts(),
+    ]);
     if (!product) throw notFound();
-    return { product };
+    return { product, allProducts };
   },
   head: ({ loaderData }) => ({
     meta: loaderData?.product
@@ -35,11 +39,25 @@ export const Route = createFileRoute("/product/$slug")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData() as { product: Product };
-  const [size, setSize] = useState(product.sizes[2] ?? product.sizes[0]);
-  const [color, setColor] = useState(product.colors[0]);
+  const { product, allProducts } = Route.useLoaderData() as {
+    product: Product;
+    allProducts: Product[];
+  };
+  const [size, setSize] = useState(product.sizes[2] ?? product.sizes[0] ?? "Standard");
+  const [color, setColor] = useState(
+    product.colors[0] ?? { name: "Standard", hex: "#E5E5E5" }
+  );
   const [qty, setQty] = useState(1);
   const [zoom, setZoom] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(product.image);
+
+  useEffect(() => {
+    setSelectedImage(product.image);
+    setSize(product.sizes[2] ?? product.sizes[0] ?? "Standard");
+    setColor(product.colors[0] ?? { name: "Standard", hex: "#E5E5E5" });
+    setQty(1);
+    setZoom(false);
+  }, [product.slug]);
 
   const message = buildOrderMessage({
     product: product.name,
@@ -48,7 +66,13 @@ function ProductPage() {
     quantity: qty,
   });
 
-  const related = PRODUCTS.filter((p) => p.slug !== product.slug).slice(0, 4);
+  const related = (allProducts || []).filter((p) => p.slug !== product.slug).slice(0, 4);
+
+  const galleryImages = (
+    product.images && product.images.length > 0
+      ? product.images
+      : [product.image, product.image, product.image, product.image]
+  ).slice(0, 4);
 
   return (
     <div className="mx-auto max-w-7xl px-5 md:px-8 pt-8 pb-20">
@@ -63,16 +87,25 @@ function ProductPage() {
             onClick={() => setZoom((v) => !v)}
           >
             <img
-              src={product.image}
+              src={selectedImage || product.image}
               alt={product.name}
               className={`h-full w-full object-cover transition-transform duration-500 ${zoom ? "scale-150" : "scale-100"}`}
             />
           </div>
           <div className="mt-3 grid grid-cols-4 gap-3">
-            {[product.image, product.image, product.image, product.image].map((img, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden bg-secondary aspect-square border border-border">
+            {galleryImages.map((img, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setSelectedImage(img)}
+                className={`rounded-2xl overflow-hidden bg-secondary aspect-square border transition-all text-left p-0 ${
+                  (selectedImage || product.image) === img
+                    ? "border-brand-orange ring-2 ring-brand-orange/30"
+                    : "border-border hover:border-brand-orange/50"
+                }`}
+              >
                 <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
-              </div>
+              </button>
             ))}
           </div>
         </div>
