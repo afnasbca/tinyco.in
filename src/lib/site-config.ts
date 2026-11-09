@@ -3,7 +3,7 @@ export const SITE = {
   name: "Tiny.co",
   tagline: "Tiny Styles, Big Smiles.",
   // International format, digits only. Replace with the real store number.
-  whatsappNumber: "919605635672",
+  whatsappNumber: "918943570572",
   email: "hello@tiny.co",
   instagram: "https://www.instagram.com/tiny._co?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
   instagramHandle: "@tiny._co",
